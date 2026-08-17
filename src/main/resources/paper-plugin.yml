@@ -1,0 +1,27 @@
+name: SomeDummy
+version: "${version}"
+main: com.someact.somedummy.SomeDummyPlugin
+api-version: "26.2"
+load: STARTUP
+description: Production-grade target dummy and damage testing plugin with mob transformation, presets, and live DPS indicators.
+authors:
+  - someact
+permissions:
+  somedummy.use:
+    description: Allows using base dummy commands (/sd) and viewing own dummies (/sd list).
+    default: true
+  somedummy.spawn:
+    description: Allows spawning target dummies (/sd spawn).
+    default: true
+  somedummy.edit.own:
+    description: Allows editing own spawned dummies using the stick wand.
+    default: true
+  somedummy.edit.other:
+    description: Allows editing or deleting other players' dummies.
+    default: op
+  somedummy.preset:
+    description: Allows using placeable dummy preset figurines/eggs and browsing preset library.
+    default: true
+  somedummy.admin:
+    description: Full access to administrative commands (/sd admin, /sd config, /sd reload, /sd purge).
+    default: op

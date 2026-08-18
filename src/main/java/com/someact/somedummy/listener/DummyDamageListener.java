@@ -90,7 +90,7 @@ public class DummyDamageListener implements Listener {
         if (damager != null) {
             if (isCrit) {
                 soundManager.playSound(damager, "dummy-crit", Sound.ENTITY_PLAYER_ATTACK_CRIT, 1.0f, 1.2f);
-                loc.getWorld().spawnParticle(Particle.CRIT, loc.add(0, 1, 0), 15, 0.3, 0.3, 0.3, 0.1);
+                loc.getWorld().spawnParticle(Particle.CRIT, loc.clone().add(0, 1, 0), 15, 0.3, 0.3, 0.3, 0.1);
             } else {
                 soundManager.playSound(damager, "dummy-hit", Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.8f, 1.0f);
             }

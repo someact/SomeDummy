@@ -1,7 +1,7 @@
 name: SomeDummy
 version: "${version}"
 main: com.someact.somedummy.SomeDummyPlugin
-api-version: "26.2"
+api-version: "1.21"
 load: POSTWORLD
 description: Production-grade target dummy and damage testing plugin with mob transformation, presets, and live DPS indicators.
 authors:

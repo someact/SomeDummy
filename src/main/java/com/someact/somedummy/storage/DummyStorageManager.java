@@ -197,8 +197,12 @@ public class DummyStorageManager {
     private String serializeItem(ItemStack item) {
         if (item == null || item.getType().isAir()) return null;
         try {
-            byte[] bytes = ItemStack.serializeItemsAsBytes(List.of(item));
-            return Base64.getEncoder().encodeToString(bytes);
+            java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+            org.bukkit.util.io.BukkitObjectOutputStream dataOutput = new org.bukkit.util.io.BukkitObjectOutputStream(outputStream);
+            dataOutput.writeInt(1);
+            dataOutput.writeObject(item);
+            dataOutput.close();
+            return Base64.getEncoder().encodeToString(outputStream.toByteArray());
         } catch (Exception e) {
             return null;
         }
@@ -206,12 +210,22 @@ public class DummyStorageManager {
 
     private ItemStack deserializeItem(String base64) {
         if (base64 == null || base64.isEmpty()) return null;
+        byte[] bytes = Base64.getDecoder().decode(base64);
         try {
-            byte[] bytes = Base64.getDecoder().decode(base64);
-            ItemStack[] deserialized = ItemStack.deserializeItemsFromBytes(bytes);
-            return (deserialized.length > 0) ? deserialized[0] : null;
+            java.io.ByteArrayInputStream inputStream = new java.io.ByteArrayInputStream(bytes);
+            org.bukkit.util.io.BukkitObjectInputStream dataInput = new org.bukkit.util.io.BukkitObjectInputStream(inputStream);
+            int size = dataInput.readInt();
+            ItemStack item = size > 0 ? (ItemStack) dataInput.readObject() : null;
+            dataInput.close();
+            return item;
         } catch (Exception e) {
+            try {
+                java.lang.reflect.Method m = ItemStack.class.getMethod("deserializeItemsFromBytes", byte[].class);
+                ItemStack[] deserialized = (ItemStack[]) m.invoke(null, (Object) bytes);
+                return (deserialized != null && deserialized.length > 0) ? deserialized[0] : null;
+            } catch (Throwable ignored) {}
             return null;
         }
     }
 }
+

@@ -57,11 +57,17 @@ public class DummyEntityManager {
         this.tickerTask = Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task -> {
             for (DummyData dummy : storage.getAllDummies()) {
                 if (dummy.isExpired()) {
-                    removeDummy(dummy);
+                    Location loc = dummy.getLocation();
+                    if (loc != null && loc.getWorld() != null) {
+                        Bukkit.getRegionScheduler().run(plugin, loc, t -> removeDummy(dummy));
+                    } else {
+                        storage.removeDummy(dummy);
+                    }
                 }
             }
         }, 1, 1, TimeUnit.SECONDS);
     }
+
 
     public void stop() {
         if (tickerTask != null) tickerTask.cancel();

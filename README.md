@@ -41,6 +41,25 @@ link
 
 ---
 
+## Customizability & Support
+
+### Customization Options
+* Full text, name, and actionbar formatting via Kyori Adventure MiniMessage (HEX colors, gradients, bold).
+* Universal mob transformation: Change dummy models to any living mob in the game, Armor Stands, or custom shapes.
+* Multiple physics modes: Dynamic (reacts to gravity and knockback), Floating (zero gravity), and Static Hard Freeze (locked in space).
+* Granular player permission toggles: 14 distinct configuration options allowing administrators to choose exactly which customization tools normal players can use.
+* In-game settings control panel (`/sd config`) to toggle spawning rules, default attributes, and DPS indicators.
+* Placeable preset figurine library: Save and distribute custom dummy loadouts as placeable inventory items.
+* Floating damage indicators and real-time Actionbar DPS tracking with configurable formats and colors.
+
+### System & Platform Support
+* Built for PaperMC and Folia region-based multi-threading environments.
+* Resource Pack Support: Built-in `custom-model-data` and custom font namespace parameters (`custom-ui-font`, e.g. `minecraft:uniform` or custom glyphs).
+* Native TextDisplay entities for floating damage indicators with automatic lifecycle cleanup.
+* Crash-safe asynchronous atomic disk storage with automatic entity restoration across server reboots.
+
+---
+
 ## Developer API
 * Direct Java access via `SomeDummyAPI` provider.
 * Custom cancellable Bukkit events:

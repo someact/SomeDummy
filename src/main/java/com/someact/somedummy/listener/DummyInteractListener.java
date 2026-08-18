@@ -98,9 +98,9 @@ public class DummyInteractListener implements Listener {
         event.setCancelled(true);
         Player player = event.getPlayer();
 
-        if (!player.hasPermission("somedummy.preset")) {
-            MessageUtil.sendMessage(player, config.getPrefix() + config.getMessage("no-permission",
-                    "<red>You do not have permission to place preset dummies.</red>"));
+        if (!player.hasPermission("somedummy.admin") && !player.hasPermission("somedummy.preset") && !config.isAllowPlayerSpawn()) {
+            MessageUtil.sendMessage(player, config.getPrefix() + config.getMessage("spawn-disabled",
+                    "<red>Normal players are not permitted to summon training dummies on this server.</red>"));
             return;
         }
 

@@ -12,7 +12,7 @@ permissions:
     default: true
   somedummy.spawn:
     description: Allows spawning target dummies (/sd spawn).
-    default: true
+    default: op
   somedummy.edit.own:
     description: Allows editing own spawned dummies using the stick wand.
     default: true
@@ -21,7 +21,7 @@ permissions:
     default: op
   somedummy.preset:
     description: Allows using placeable dummy preset figurines/eggs and browsing preset library.
-    default: true
+    default: op
   somedummy.admin:
     description: Full access to administrative commands (/sd admin, /sd config, /sd reload, /sd purge).
     default: op

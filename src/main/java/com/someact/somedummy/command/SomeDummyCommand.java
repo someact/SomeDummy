@@ -83,9 +83,9 @@ public class SomeDummyCommand implements BasicCommand, CommandExecutor, TabCompl
                     sender.sendMessage("This command can only be run by a player.");
                     return;
                 }
-                if (!player.hasPermission("somedummy.spawn")) {
-                    MessageUtil.sendMessage(player, cfg.getPrefix() + cfg.getMessage("no-permission",
-                            "<red>You do not have permission to execute this command.</red>"));
+                if (!player.hasPermission("somedummy.admin") && !player.hasPermission("somedummy.spawn") && !cfg.isAllowPlayerSpawn()) {
+                    MessageUtil.sendMessage(player, cfg.getPrefix() + cfg.getMessage("spawn-disabled",
+                            "<red>Normal players are not permitted to summon training dummies on this server.</red>"));
                     return;
                 }
 

@@ -156,12 +156,39 @@ public class ConfigManager {
             writer.println("  # Silent startup in server console: if false, prints the SomeDummy banner on startup");
             writer.println("  silent-startup = " + isSilentStartup());
             writer.println();
+            writer.println("  # Allow non-admin players to summon dummies (/sd spawn, /sd add, or placing preset figurines)");
+            writer.println("  # When false, only operators/admins (somedummy.spawn permission) can summon dummies");
+            writer.println("  allow-player-spawn = " + isAllowPlayerSpawn());
+            writer.println();
             writer.println("  # Optional custom font namespace for GUI titles and text (leave empty for default)");
             writer.println("  # Example: \"minecraft:uniform\" or \"somedummy:gui\"");
             writer.println("  custom-ui-font = \"" + getCustomUiFont() + "\"");
             writer.println();
             writer.println("  # Maximum number of target dummies a single player can have spawned simultaneously (0 for unlimited)");
             writer.println("  max-dummies-per-player = " + getMaxDummiesPerPlayer());
+            writer.println("}");
+            writer.println();
+
+            writer.println("# ==============================================================================");
+            writer.println("#                 NORMAL PLAYER EDITOR PERMISSION RESTRICTIONS");
+            writer.println("# ==============================================================================");
+            writer.println("# Control which features non-admin players are allowed to customize on their dummies.");
+            writer.println("# Administrators (with somedummy.admin permission) always have full bypass.");
+            writer.println("player-editor-permissions {");
+            writer.println("  allow-change-type = " + isAllowChangeType());
+            writer.println("  allow-rename = " + isAllowRename());
+            writer.println("  allow-custom-health = " + isAllowCustomHealth());
+            writer.println("  allow-toggle-infinite-health = " + isAllowToggleInfiniteHealth());
+            writer.println("  allow-toggle-ai = " + isAllowToggleAi());
+            writer.println("  allow-toggle-physics = " + isAllowTogglePhysics());
+            writer.println("  allow-toggle-silent = " + isAllowToggleSilent());
+            writer.println("  allow-toggle-respawn = " + isAllowToggleRespawn());
+            writer.println("  allow-edit-equipment = " + isAllowEditEquipment());
+            writer.println("  allow-change-duration = " + isAllowChangeDuration());
+            writer.println("  allow-export-preset = " + isAllowExportPreset());
+            writer.println("  allow-toggle-burn-in-sun = " + isAllowToggleBurnInSun());
+            writer.println("  allow-teleport-dummy = " + isAllowTeleportDummy());
+            writer.println("  allow-delete-dummy = " + isAllowDeleteDummy());
             writer.println("}");
             writer.println();
 
@@ -296,6 +323,157 @@ public class ConfigManager {
 
     public void setMaxDummiesPerPlayer(int max) {
         values.put("general.max-dummies-per-player", Math.max(0, max));
+    }
+
+    public boolean isAllowPlayerSpawn() {
+        Object val = values.get("general.allow-player-spawn");
+        if (val instanceof Boolean b) return b;
+        return false;
+    }
+
+    public void setAllowPlayerSpawn(boolean allow) {
+        values.put("general.allow-player-spawn", allow);
+    }
+
+    // Player Editor Permissions
+    public boolean isAllowChangeType() {
+        Object val = values.get("player-editor-permissions.allow-change-type");
+        if (val instanceof Boolean b) return b;
+        return false;
+    }
+
+    public void setAllowChangeType(boolean allow) {
+        values.put("player-editor-permissions.allow-change-type", allow);
+    }
+
+    public boolean isAllowRename() {
+        Object val = values.get("player-editor-permissions.allow-rename");
+        if (val instanceof Boolean b) return b;
+        return true;
+    }
+
+    public void setAllowRename(boolean allow) {
+        values.put("player-editor-permissions.allow-rename", allow);
+    }
+
+    public boolean isAllowCustomHealth() {
+        Object val = values.get("player-editor-permissions.allow-custom-health");
+        if (val instanceof Boolean b) return b;
+        return false;
+    }
+
+    public void setAllowCustomHealth(boolean allow) {
+        values.put("player-editor-permissions.allow-custom-health", allow);
+    }
+
+    public boolean isAllowToggleInfiniteHealth() {
+        Object val = values.get("player-editor-permissions.allow-toggle-infinite-health");
+        if (val instanceof Boolean b) return b;
+        return true;
+    }
+
+    public void setAllowToggleInfiniteHealth(boolean allow) {
+        values.put("player-editor-permissions.allow-toggle-infinite-health", allow);
+    }
+
+    public boolean isAllowToggleAi() {
+        Object val = values.get("player-editor-permissions.allow-toggle-ai");
+        if (val instanceof Boolean b) return b;
+        return false;
+    }
+
+    public void setAllowToggleAi(boolean allow) {
+        values.put("player-editor-permissions.allow-toggle-ai", allow);
+    }
+
+    public boolean isAllowTogglePhysics() {
+        Object val = values.get("player-editor-permissions.allow-toggle-physics");
+        if (val instanceof Boolean b) return b;
+        return false;
+    }
+
+    public void setAllowTogglePhysics(boolean allow) {
+        values.put("player-editor-permissions.allow-toggle-physics", allow);
+    }
+
+    public boolean isAllowToggleSilent() {
+        Object val = values.get("player-editor-permissions.allow-toggle-silent");
+        if (val instanceof Boolean b) return b;
+        return true;
+    }
+
+    public void setAllowToggleSilent(boolean allow) {
+        values.put("player-editor-permissions.allow-toggle-silent", allow);
+    }
+
+    public boolean isAllowToggleRespawn() {
+        Object val = values.get("player-editor-permissions.allow-toggle-respawn");
+        if (val instanceof Boolean b) return b;
+        return false;
+    }
+
+    public void setAllowToggleRespawn(boolean allow) {
+        values.put("player-editor-permissions.allow-toggle-respawn", allow);
+    }
+
+    public boolean isAllowEditEquipment() {
+        Object val = values.get("player-editor-permissions.allow-edit-equipment");
+        if (val instanceof Boolean b) return b;
+        return true;
+    }
+
+    public void setAllowEditEquipment(boolean allow) {
+        values.put("player-editor-permissions.allow-edit-equipment", allow);
+    }
+
+    public boolean isAllowChangeDuration() {
+        Object val = values.get("player-editor-permissions.allow-change-duration");
+        if (val instanceof Boolean b) return b;
+        return false;
+    }
+
+    public void setAllowChangeDuration(boolean allow) {
+        values.put("player-editor-permissions.allow-change-duration", allow);
+    }
+
+    public boolean isAllowExportPreset() {
+        Object val = values.get("player-editor-permissions.allow-export-preset");
+        if (val instanceof Boolean b) return b;
+        return false;
+    }
+
+    public void setAllowExportPreset(boolean allow) {
+        values.put("player-editor-permissions.allow-export-preset", allow);
+    }
+
+    public boolean isAllowToggleBurnInSun() {
+        Object val = values.get("player-editor-permissions.allow-toggle-burn-in-sun");
+        if (val instanceof Boolean b) return b;
+        return false;
+    }
+
+    public void setAllowToggleBurnInSun(boolean allow) {
+        values.put("player-editor-permissions.allow-toggle-burn-in-sun", allow);
+    }
+
+    public boolean isAllowTeleportDummy() {
+        Object val = values.get("player-editor-permissions.allow-teleport-dummy");
+        if (val instanceof Boolean b) return b;
+        return true;
+    }
+
+    public void setAllowTeleportDummy(boolean allow) {
+        values.put("player-editor-permissions.allow-teleport-dummy", allow);
+    }
+
+    public boolean isAllowDeleteDummy() {
+        Object val = values.get("player-editor-permissions.allow-delete-dummy");
+        if (val instanceof Boolean b) return b;
+        return true;
+    }
+
+    public void setAllowDeleteDummy(boolean allow) {
+        values.put("player-editor-permissions.allow-delete-dummy", allow);
     }
 
     public Material getWandMaterial() {

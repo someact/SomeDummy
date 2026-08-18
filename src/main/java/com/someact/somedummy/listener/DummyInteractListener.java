@@ -70,7 +70,7 @@ public class DummyInteractListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
-        // ArmorStand click interception
+        if (event.getHand() != EquipmentSlot.HAND) return;
         Entity entity = event.getRightClicked();
         DummyData dummy = plugin.getEntityManager().getDummyFromEntity(entity);
         if (dummy == null) return;
@@ -83,6 +83,20 @@ public class DummyInteractListener implements Listener {
 
         if (isWand && sneakMatch) {
             event.setCancelled(true);
+
+            boolean isOwner = dummy.getOwnerUuid().equals(player.getUniqueId());
+            if (!isOwner && !player.hasPermission("somedummy.edit.other") && !player.hasPermission("somedummy.admin")) {
+                MessageUtil.sendMessage(player, config.getPrefix() + config.getMessage("no-permission",
+                        "<red>You do not have permission to edit another player's target dummy.</red>"));
+                return;
+            }
+
+            if (isOwner && !player.hasPermission("somedummy.edit.own") && !player.hasPermission("somedummy.use") && !player.hasPermission("somedummy.admin")) {
+                MessageUtil.sendMessage(player, config.getPrefix() + config.getMessage("no-permission",
+                        "<red>You do not have permission to edit target dummies.</red>"));
+                return;
+            }
+
             new DummyEditorGUI(plugin, player, dummy).open();
         }
     }

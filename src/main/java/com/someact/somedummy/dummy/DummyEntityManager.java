@@ -131,11 +131,21 @@ public class DummyEntityManager {
         Location loc = dummy.getLocation();
         if (loc == null || loc.getWorld() == null) return;
 
-        // Remove old entity if any
+        // Remove old entity if tracked
         if (dummy.getCurrentEntityUuid() != null) {
             Entity old = Bukkit.getEntity(dummy.getCurrentEntityUuid());
             if (old != null && old.isValid()) {
                 old.remove();
+            }
+        }
+
+        // Clean up any lingering entity with this dummyId in the area
+        for (Entity e : loc.getWorld().getNearbyEntities(loc, 1.5, 1.5, 1.5)) {
+            if (e.getPersistentDataContainer().has(dummyPdcKey, PersistentDataType.STRING)) {
+                String idStr = e.getPersistentDataContainer().get(dummyPdcKey, PersistentDataType.STRING);
+                if (dummy.getDummyId().toString().equals(idStr)) {
+                    e.remove();
+                }
             }
         }
 
@@ -265,6 +275,23 @@ public class DummyEntityManager {
 
     public DummyData getDummyFromEntity(Entity entity) {
         if (entity == null) return null;
-        return storage.getDummyByEntityUuid(entity.getUniqueId());
+        DummyData found = storage.getDummyByEntityUuid(entity.getUniqueId());
+        if (found != null) return found;
+
+        if (entity.getPersistentDataContainer().has(dummyPdcKey, PersistentDataType.STRING)) {
+            String idStr = entity.getPersistentDataContainer().get(dummyPdcKey, PersistentDataType.STRING);
+            if (idStr != null) {
+                try {
+                    UUID dummyId = UUID.fromString(idStr);
+                    DummyData d = storage.getDummy(dummyId);
+                    if (d != null) {
+                        d.setCurrentEntityUuid(entity.getUniqueId());
+                        storage.registerEntity(entity.getUniqueId(), dummyId);
+                        return d;
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+        return null;
     }
 }

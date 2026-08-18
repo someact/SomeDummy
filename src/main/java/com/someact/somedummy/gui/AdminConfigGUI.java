@@ -37,6 +37,7 @@ public class AdminConfigGUI implements InventoryHolder {
     private static final int ACTIONBAR_DPS_SLOT = 22;
     private static final int SOUNDS_SLOT = 24;
 
+    private static final int ALLOW_SPAWN_SLOT = 31;
     private static final int RELOAD_SLOT = 40;
     private static final int CLOSE_SLOT = 49;
 
@@ -138,6 +139,20 @@ public class AdminConfigGUI implements InventoryHolder {
                 .glow(sounds)
                 .build());
 
+        // 7. Allow Normal Player Spawning
+        boolean allowSpawn = config.isAllowPlayerSpawn();
+        inventory.setItem(ALLOW_SPAWN_SLOT, ItemBuilder.from(allowSpawn ? Material.EMERALD_BLOCK : Material.REDSTONE_BLOCK)
+                .name("<yellow><bold>Normal Player Dummy Spawning</bold></yellow>")
+                .loreStrings(List.of(
+                        "<gray>Status: " + (allowSpawn ? "<green><bold>ENABLED (Players Can Spawn)</bold></green>" : "<red><bold>DISABLED (Admins Only)</bold></red>"),
+                        "<gray>Controls whether non-admin players can</gray>",
+                        "<gray>summon target dummies or use preset items.</gray>",
+                        "",
+                        "<yellow>[Click to Toggle]</yellow>"
+                ))
+                .glow(allowSpawn)
+                .build());
+
         // Reload
         inventory.setItem(RELOAD_SLOT, ItemBuilder.from(Material.NETHER_STAR)
                 .name("<green><bold>Reload Config from Disk</bold></green>")
@@ -157,6 +172,14 @@ public class AdminConfigGUI implements InventoryHolder {
 
         if (slot == CLOSE_SLOT) {
             admin.closeInventory();
+            return;
+        }
+
+        if (slot == ALLOW_SPAWN_SLOT) {
+            config.setAllowPlayerSpawn(!config.isAllowPlayerSpawn());
+            config.save();
+            populate();
+            soundManager.playSound(admin, "gui-click", Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
             return;
         }
 

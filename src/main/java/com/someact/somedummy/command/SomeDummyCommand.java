@@ -7,6 +7,7 @@ import com.someact.somedummy.gui.AdminDummyManagerGUI;
 import com.someact.somedummy.gui.PlayerDummyListGUI;
 import com.someact.somedummy.gui.PresetLibraryGUI;
 import com.someact.somedummy.model.DummyData;
+import com.someact.somedummy.util.ItemBuilder;
 import com.someact.somedummy.util.MessageUtil;
 import io.papermc.paper.command.brigadier.BasicCommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -68,6 +69,11 @@ public class SomeDummyCommand implements BasicCommand, CommandExecutor, TabCompl
 
         if (args.length == 0) {
             if (sender instanceof Player player) {
+                if (!player.hasPermission("somedummy.use")) {
+                    MessageUtil.sendMessage(player, cfg.getPrefix() + cfg.getMessage("no-permission",
+                            "<red>You do not have permission to execute this command.</red>"));
+                    return;
+                }
                 new PlayerDummyListGUI(plugin, player).open();
             } else {
                 showHelp(sender);
@@ -83,7 +89,10 @@ public class SomeDummyCommand implements BasicCommand, CommandExecutor, TabCompl
                     sender.sendMessage("This command can only be run by a player.");
                     return;
                 }
-                if (!player.hasPermission("somedummy.admin") && !player.hasPermission("somedummy.spawn") && !cfg.isAllowPlayerSpawn()) {
+                boolean canSpawn = player.hasPermission("somedummy.admin")
+                        || player.hasPermission("somedummy.spawn")
+                        || cfg.isAllowPlayerSpawn();
+                if (!canSpawn) {
                     MessageUtil.sendMessage(player, cfg.getPrefix() + cfg.getMessage("spawn-disabled",
                             "<red>Normal players are not permitted to summon training dummies on this server.</red>"));
                     return;
@@ -101,9 +110,35 @@ public class SomeDummyCommand implements BasicCommand, CommandExecutor, TabCompl
                     } catch (Exception ignored) {}
                 }
             }
+            case "wand" -> {
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage("This command can only be run by a player.");
+                    return;
+                }
+                if (!player.hasPermission("somedummy.use") && !player.hasPermission("somedummy.edit.own")) {
+                    MessageUtil.sendMessage(player, cfg.getPrefix() + cfg.getMessage("no-permission",
+                            "<red>You do not have permission to execute this command.</red>"));
+                    return;
+                }
+                ItemStack wand = ItemBuilder.from(cfg.getWandMaterial())
+                        .name("<gradient:#ff7675:#fab1a0><bold>Dummy Editing Wand</bold></gradient>")
+                        .loreStrings(List.of(
+                                "<gray>Shift + Right-Click any target dummy</gray>",
+                                "<gray>to open the customization menu.</gray>"
+                        ))
+                        .glow(true)
+                        .build();
+                player.getInventory().addItem(wand);
+                MessageUtil.sendMessage(player, cfg.getPrefix() + "<green>Received dummy editing wand!</green>");
+            }
             case "list" -> {
                 if (!(sender instanceof Player player)) {
                     sender.sendMessage("This command can only be run by a player.");
+                    return;
+                }
+                if (!player.hasPermission("somedummy.use")) {
+                    MessageUtil.sendMessage(player, cfg.getPrefix() + cfg.getMessage("no-permission",
+                            "<red>You do not have permission to execute this command.</red>"));
                     return;
                 }
                 new PlayerDummyListGUI(plugin, player).open();
@@ -113,7 +148,7 @@ public class SomeDummyCommand implements BasicCommand, CommandExecutor, TabCompl
                     sender.sendMessage("This command can only be run by a player.");
                     return;
                 }
-                if (!player.hasPermission("somedummy.preset")) {
+                if (!player.hasPermission("somedummy.admin") && !player.hasPermission("somedummy.preset")) {
                     MessageUtil.sendMessage(player, cfg.getPrefix() + cfg.getMessage("no-permission",
                             "<red>You do not have permission to execute this command.</red>"));
                     return;
@@ -201,6 +236,11 @@ public class SomeDummyCommand implements BasicCommand, CommandExecutor, TabCompl
             }
             default -> {
                 if (sender instanceof Player player) {
+                    if (!player.hasPermission("somedummy.use")) {
+                        MessageUtil.sendMessage(player, cfg.getPrefix() + cfg.getMessage("no-permission",
+                                "<red>You do not have permission to execute this command.</red>"));
+                        return;
+                    }
                     new PlayerDummyListGUI(plugin, player).open();
                 } else {
                     showHelp(sender);
@@ -211,15 +251,22 @@ public class SomeDummyCommand implements BasicCommand, CommandExecutor, TabCompl
 
     private void showHelp(CommandSender sender) {
         boolean isAdmin = sender.hasPermission("somedummy.admin");
+        ConfigManager cfg = config();
 
         sender.sendMessage(MessageUtil.parse("<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</dark_gray>"));
         sender.sendMessage(MessageUtil.parse("           <gradient:#ff7675:#fab1a0><bold>SomeDummy Command Guide</bold></gradient>"));
         sender.sendMessage(MessageUtil.parse("<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</dark_gray>"));
 
         sender.sendMessage(MessageUtil.parse("<gold><bold>/sd</bold></gold> <dark_gray>-</dark_gray> <white>Opens your active dummy management list.</white>"));
-        sender.sendMessage(MessageUtil.parse("<gold><bold>/sd spawn [mob]</bold></gold> <dark_gray>-</dark_gray> <white>Spawns a target dummy at your feet.</white>"));
         sender.sendMessage(MessageUtil.parse("<gold><bold>/sd list</bold></gold> <dark_gray>-</dark_gray> <white>Opens the My Dummies menu.</white>"));
-        sender.sendMessage(MessageUtil.parse("<gold><bold>/sd presets</bold></gold> <dark_gray>-</dark_gray> <white>Opens preset dummy templates library.</white>"));
+        sender.sendMessage(MessageUtil.parse("<gold><bold>/sd wand</bold></gold> <dark_gray>-</dark_gray> <white>Gives you the dummy editing stick wand.</white>"));
+
+        if (isAdmin || sender.hasPermission("somedummy.spawn") || (cfg != null && cfg.isAllowPlayerSpawn())) {
+            sender.sendMessage(MessageUtil.parse("<gold><bold>/sd spawn [mob]</bold></gold> <dark_gray>-</dark_gray> <white>Spawns a target dummy at your feet.</white>"));
+        }
+        if (isAdmin || sender.hasPermission("somedummy.preset")) {
+            sender.sendMessage(MessageUtil.parse("<gold><bold>/sd presets</bold></gold> <dark_gray>-</dark_gray> <white>Opens preset dummy templates library.</white>"));
+        }
         sender.sendMessage(MessageUtil.parse("<gold><bold>/sd help</bold></gold> <dark_gray>-</dark_gray> <white>Displays this help menu.</white>"));
 
         if (isAdmin) {
@@ -236,9 +283,16 @@ public class SomeDummyCommand implements BasicCommand, CommandExecutor, TabCompl
 
     private List<String> processTabComplete(CommandSender sender, String[] args) {
         List<String> completions = new ArrayList<>();
+        ConfigManager cfg = config();
 
         if (args.length == 1) {
-            List<String> subs = new ArrayList<>(List.of("help", "spawn", "list", "presets"));
+            List<String> subs = new ArrayList<>(List.of("help", "list", "wand"));
+            if (sender.hasPermission("somedummy.admin") || sender.hasPermission("somedummy.spawn") || (cfg != null && cfg.isAllowPlayerSpawn())) {
+                subs.add("spawn");
+            }
+            if (sender.hasPermission("somedummy.admin") || sender.hasPermission("somedummy.preset")) {
+                subs.add("presets");
+            }
             if (sender.hasPermission("somedummy.admin")) {
                 subs.addAll(List.of("admin", "config", "givepreset", "reload", "purge"));
             }

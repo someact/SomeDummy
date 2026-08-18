@@ -151,6 +151,14 @@ public class EntityTypeSelectGUI implements InventoryHolder {
         }
 
         if (slot >= 0 && slot < ITEMS_PER_PAGE) {
+            if (!player.hasPermission("somedummy.admin") && !plugin.getConfigManager().isAllowChangeType()) {
+                MessageUtil.sendMessage(player, plugin.getConfigManager().getPrefix() + plugin.getConfigManager().getMessage("editor-locked",
+                        "<red>This dummy customization is locked by the server administrator.</red>"));
+                soundManager.playSound(player, "error", Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+                new DummyEditorGUI(plugin, player, dummy).open();
+                return;
+            }
+
             int index = page * ITEMS_PER_PAGE + slot;
             if (index < AVAILABLE_TYPES.size()) {
                 EntityType selected = AVAILABLE_TYPES.get(index);

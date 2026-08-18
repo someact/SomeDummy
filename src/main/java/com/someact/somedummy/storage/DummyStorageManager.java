@@ -101,17 +101,14 @@ public class DummyStorageManager {
                 UUID ownerUuid = UUID.fromString(yaml.getString("ownerUuid"));
                 String ownerName = yaml.getString("ownerName", "Player");
 
-                World world = Bukkit.getWorld(yaml.getString("location.world", "world"));
-                if (world == null) continue;
-
+                String worldName = yaml.getString("location.world", "world");
                 double x = yaml.getDouble("location.x");
                 double y = yaml.getDouble("location.y");
                 double z = yaml.getDouble("location.z");
                 float yaw = (float) yaml.getDouble("location.yaw", 0.0);
                 float pitch = (float) yaml.getDouble("location.pitch", 0.0);
-                Location loc = new Location(world, x, y, z, yaw, pitch);
 
-                DummyData data = new DummyData(dummyId, ownerUuid, ownerName, loc);
+                DummyData data = new DummyData(dummyId, ownerUuid, ownerName, worldName, x, y, z, yaw, pitch);
                 data.setEntityType(EntityType.valueOf(yaml.getString("entityType", "ZOMBIE")));
                 data.setCustomName(yaml.getString("customName"));
                 data.setMaxHealth(yaml.getDouble("maxHealth", 1000.0));
@@ -154,12 +151,12 @@ public class DummyStorageManager {
         yaml.set("dummyId", dummy.getDummyId().toString());
         yaml.set("ownerUuid", dummy.getOwnerUuid().toString());
         yaml.set("ownerName", dummy.getOwnerName());
-        yaml.set("location.world", dummy.getLocation().getWorld().getName());
-        yaml.set("location.x", dummy.getLocation().getX());
-        yaml.set("location.y", dummy.getLocation().getY());
-        yaml.set("location.z", dummy.getLocation().getZ());
-        yaml.set("location.yaw", dummy.getLocation().getYaw());
-        yaml.set("location.pitch", dummy.getLocation().getPitch());
+        yaml.set("location.world", dummy.getWorldName());
+        yaml.set("location.x", dummy.getX());
+        yaml.set("location.y", dummy.getY());
+        yaml.set("location.z", dummy.getZ());
+        yaml.set("location.yaw", dummy.getYaw());
+        yaml.set("location.pitch", dummy.getPitch());
 
         yaml.set("entityType", dummy.getEntityType().name());
         yaml.set("customName", dummy.getCustomName());

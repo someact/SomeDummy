@@ -14,6 +14,12 @@ public class DummyData {
     private final UUID dummyId;
     private final UUID ownerUuid;
     private final String ownerName;
+    private String worldName;
+    private double x;
+    private double y;
+    private double z;
+    private float yaw;
+    private float pitch;
     private Location location;
 
     private EntityType entityType;
@@ -44,10 +50,27 @@ public class DummyData {
     private UUID currentEntityUuid;
 
     public DummyData(UUID dummyId, UUID ownerUuid, String ownerName, Location location) {
+        this(dummyId, ownerUuid, ownerName,
+                location != null && location.getWorld() != null ? location.getWorld().getName() : "world",
+                location != null ? location.getX() : 0.0,
+                location != null ? location.getY() : 0.0,
+                location != null ? location.getZ() : 0.0,
+                location != null ? location.getYaw() : 0.0f,
+                location != null ? location.getPitch() : 0.0f);
+        this.location = location;
+    }
+
+    public DummyData(UUID dummyId, UUID ownerUuid, String ownerName, String worldName,
+                     double x, double y, double z, float yaw, float pitch) {
         this.dummyId = dummyId != null ? dummyId : UUID.randomUUID();
         this.ownerUuid = ownerUuid;
         this.ownerName = ownerName;
-        this.location = location;
+        this.worldName = worldName != null ? worldName : "world";
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.yaw = yaw;
+        this.pitch = pitch;
 
         this.entityType = EntityType.ZOMBIE;
         this.customName = "<gradient:#ff7675:#fab1a0><bold>Combat Target Dummy</bold></gradient>";
@@ -78,12 +101,50 @@ public class DummyData {
         return ownerName;
     }
 
+    public String getWorldName() {
+        return worldName;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getZ() {
+        return z;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
     public Location getLocation() {
+        if (location == null || location.getWorld() == null) {
+            org.bukkit.World w = org.bukkit.Bukkit.getWorld(worldName);
+            if (w != null) {
+                location = new Location(w, x, y, z, yaw, pitch);
+            }
+        }
         return location;
     }
 
     public void setLocation(Location location) {
         this.location = location;
+        if (location != null && location.getWorld() != null) {
+            this.worldName = location.getWorld().getName();
+            this.x = location.getX();
+            this.y = location.getY();
+            this.z = location.getZ();
+            this.yaw = location.getYaw();
+            this.pitch = location.getPitch();
+        }
     }
 
     public EntityType getEntityType() {

@@ -74,16 +74,26 @@ public class PlayerDummyListGUI implements InventoryHolder {
                     .build());
         }
 
-        // Spawn new button
-        inventory.setItem(SPAWN_NEW_SLOT, ItemBuilder.from(Material.EMERALD)
-                .name("<green><bold>+ Spawn New Dummy Here</bold></green>")
-                .loreStrings(List.of("<gray>Spawns a new target dummy at your feet.</gray>"))
-                .build());
+        // Spawn new button (only visible if player has permission or allow-player-spawn is enabled)
+        if (canSpawn()) {
+            inventory.setItem(SPAWN_NEW_SLOT, ItemBuilder.from(Material.EMERALD)
+                    .name("<green><bold>+ Spawn New Dummy Here</bold></green>")
+                    .loreStrings(List.of("<gray>Spawns a new target dummy at your feet.</gray>"))
+                    .build());
+        } else {
+            inventory.setItem(SPAWN_NEW_SLOT, ItemBuilder.from(Material.GRAY_STAINED_GLASS_PANE).name(Component.empty()).build());
+        }
 
         // Close
         inventory.setItem(CLOSE_SLOT, ItemBuilder.from(Material.BARRIER)
                 .name("<red><bold>Close Menu</bold></red>")
                 .build());
+    }
+
+    private boolean canSpawn() {
+        if (player.hasPermission("somedummy.admin")) return true;
+        if (player.hasPermission("somedummy.spawn")) return true;
+        return plugin.getConfigManager().isAllowPlayerSpawn();
     }
 
     public void handleClick(InventoryClickEvent event) {
@@ -96,6 +106,12 @@ public class PlayerDummyListGUI implements InventoryHolder {
         }
 
         if (slot == SPAWN_NEW_SLOT) {
+            if (!canSpawn()) {
+                MessageUtil.sendMessage(player, plugin.getConfigManager().getPrefix() + plugin.getConfigManager().getMessage("spawn-disabled",
+                        "<red>Normal players are not permitted to summon training dummies on this server.</red>"));
+                soundManager.playSound(player, "error", Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+                return;
+            }
             player.closeInventory();
             plugin.getEntityManager().spawnDummy(player, player.getLocation());
             return;
@@ -105,6 +121,12 @@ public class PlayerDummyListGUI implements InventoryHolder {
             DummyData d = dummies.get(slot);
 
             if (event.isShiftClick() && event.isRightClick()) {
+                if (!player.hasPermission("somedummy.admin") && !plugin.getConfigManager().isAllowDeleteDummy()) {
+                    MessageUtil.sendMessage(player, plugin.getConfigManager().getPrefix() + plugin.getConfigManager().getMessage("editor-locked",
+                            "<red>This dummy customization is locked by the server administrator.</red>"));
+                    soundManager.playSound(player, "error", Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+                    return;
+                }
                 plugin.getEntityManager().removeDummy(d);
                 soundManager.playSound(player, "dummy-die", Sound.ENTITY_ITEM_BREAK, 1.0f, 0.8f);
                 new PlayerDummyListGUI(plugin, player).open();
@@ -112,13 +134,19 @@ public class PlayerDummyListGUI implements InventoryHolder {
             }
 
             if (event.isRightClick()) {
+                if (!player.hasPermission("somedummy.admin") && !plugin.getConfigManager().isAllowTeleportDummy()) {
+                    MessageUtil.sendMessage(player, plugin.getConfigManager().getPrefix() + plugin.getConfigManager().getMessage("editor-locked",
+                            "<red>This dummy customization is locked by the server administrator.</red>"));
+                    soundManager.playSound(player, "error", Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+                    return;
+                }
                 d.setLocation(player.getLocation());
                 plugin.getStorageManager().saveDummyAsync(d);
                 Bukkit.getRegionScheduler().run(plugin, d.getLocation(), t -> {
                     plugin.getEntityManager().spawnDummyEntity(d);
                 });
                 soundManager.playSound(player, "dummy-spawn", Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.2f);
-                MessageUtil.sendMessage(player, plugin.getConfigManager().getPrefix() + "<green>Moved dummy to your location.</green>");
+                MessageUtil.sendMessage(player, plugin.getConfigManager().getPrefix() + "<green>Teleported dummy to your location.</green>");
                 new PlayerDummyListGUI(plugin, player).open();
                 return;
             }

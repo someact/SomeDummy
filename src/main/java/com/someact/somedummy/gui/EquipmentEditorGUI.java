@@ -90,6 +90,15 @@ public class EquipmentEditorGUI implements InventoryHolder {
     }
 
     public void handleClick(InventoryClickEvent event) {
+        if (!player.hasPermission("somedummy.admin") && !plugin.getConfigManager().isAllowEditEquipment()) {
+            event.setCancelled(true);
+            MessageUtil.sendMessage(player, plugin.getConfigManager().getPrefix() + plugin.getConfigManager().getMessage("editor-locked",
+                    "<red>This dummy customization is locked by the server administrator.</red>"));
+            soundManager.playSound(player, "error", Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+            new DummyEditorGUI(plugin, player, dummy).open();
+            return;
+        }
+
         int rawSlot = event.getRawSlot();
 
         if (rawSlot >= 54) return; // Player clicking own inventory
@@ -121,7 +130,9 @@ public class EquipmentEditorGUI implements InventoryHolder {
     }
 
     public void handleClose(InventoryCloseEvent event) {
-        saveEquipment();
+        if (player.hasPermission("somedummy.admin") || plugin.getConfigManager().isAllowEditEquipment()) {
+            saveEquipment();
+        }
     }
 
     private void saveEquipment() {
